@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sound Travels</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #ffffff;
+      margin: 0;
+      position: relative;
+    }
+
+    .scale-container {
+      position: absolute;
+      top: 35%;  /* Adjust to move up or down */
+      left: 40%; /* Center horizontally */
+      transform: translate(-50%, -50%) scale(0.8); /* Adjust the scale value here */
+      width: 60vw; /* Proportional width */
+      height: 50vw; /* Proportional height */
+      transform-origin: center; /* Keep scaling centered */
+    }
+
+    .frequency-bars-wrapper {
+      display: flex;
+      justify-content: center; /* Center horizontally */
+      align-items: center; /* Center vertically */
+      width: 100%; /* Full width within scale-container */
+      height: 80%; /* Adjust height relative to the wrapper */
+      position: relative;
+    }
+
+    .frequency-bars {
+      display: flex;
+      gap: 1.1vw; /* Proportional gap using viewport width */
+      align-items: flex-end; /* Align the bars at the bottom */
+      width: 100%; /* Full width of wrapper */
+      height: 100%; /* Full height */
+    }
+
+    .bar-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .circle {
+      width: 1.1vw; /* Proportional size for circle */
+      height: 1.1vw;
+      background-color: black;
+      border-radius: 50%;
+    }
+
+    .bar {
+      width: 0.4vw; /* Reduce thickness to a responsive size */
+      background-color: black;
+      transition: background-color 0.3s;
+      margin-bottom: -1.0vw; /* Attach bar to circle */
+    }
+
+    .bar:hover {
+      background-color: blue;
+    }
+
+    /* Style for the Sound Travels title image */
+    .title-image {
+      position: absolute;
+      bottom: -1.5vw; /* Keep relative to the scale-container */
+      width: 142%; /* Scale relative to container width */
+      left: 70.5%;
+      transform: translateX(-50%); /* Center the image horizontally */
+      z-index: -1; /* Ensure it appears in front of the bars */
+      transition: all 0.3s ease; /* Smooth transition when switching images */
+    }
+
+    /* Responsive styling for proportional scaling */
+    @media screen and (max-width: 768px) {
+      .scale-container {
+        width: 80vw; /* Make the entire graphic smaller on smaller screens */
+        height: 65vw;
+      }
+
+      .title-image {
+        width: 70%; /* Make the image smaller on smaller screens */
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="scale-container">
+  <div class="frequency-bars-wrapper">
+    <div class="frequency-bars" id="frequencyBars">
+      <!-- Bars and circles will be dynamically created here -->
+    </div>
+  </div>
+  <!-- Replace text with image -->
+  <img src="sound-travels.png" class="title-image" id="titleImage" alt="Sound Travels Logo">
+</div>
+
+<script>
+  // Define the heights of the 29 bars as a percentage of viewport width (vw)
+  const barsData = [
+    { height: 9 }, { height: 14.5 }, { height: 20 }, { height: 25.5 }, { height: 31 }, 
+    { height: 31 }, { height: 30.5 }, { height: 30 }, { height: 27.5 }, { height: 25 },
+    { height: 22.5 }, { height: 20 }, { height: 17.5 }, { height: 15 }, { height: 12.5 }, 
+    { height: 10.5 }, { height: 8 }, { height: 6 }, { height: 3.5 }, { height: 6 }, 
+    { height: 8 }, { height: 10 }, { height: 11.5 }, { height: 12.5 }, { height: 13 }, 
+    { height: 13.5 }, { height: 13 }
+  ];
+
+  const barContainer = document.getElementById('frequencyBars');
+
+  // Loop to create 29 bars and assign sounds to each bar
+  barsData.forEach((barData, index) => {
+    // Create a div for the bar container (bar + circle)
+    const barWrapper = document.createElement('div');
+    barWrapper.classList.add('bar-container');
+
+    // Create a div for each bar
+    const bar = document.createElement('div');
+    bar.classList.add('bar');
+    bar.style.height = `${barData.height}vw`; // Set the height using vw (viewport width units)
+
+    // Create the circle at the base of each bar
+    const circle = document.createElement('div');
+    circle.classList.add('circle');
+
+    // Hide the 18th bar and its circle (index = 17)
+    if (index === 17) {
+      bar.style.visibility = 'hidden';      // Makes the 18th bar invisible, but keeps its space
+      bar.style.pointerEvents = 'none';     // Makes the 18th bar non-interactive
+      circle.style.visibility = 'hidden';   // Hides the circle as well
+      circle.style.pointerEvents = 'none';  // Makes the circle non-interactive
+    }
+
+    // Attach the specific sound file (e.g., bar1.wav, bar2.wav, ...)
+    const audio = new Audio(`bar${index + 1}.wav`);
+
+    // Play the audio when the user hovers over the bar
+    bar.addEventListener('mouseenter', () => {
+      audio.play();
+    });
+
+    // Stop and reset the audio when the user stops hovering
+    bar.addEventListener('mouseleave', () => {
+      audio.pause();
+      audio.currentTime = 0; // Reset audio to the start
+    });
+
+    // Append the bar and the circle to the wrapper
+    barWrapper.appendChild(bar);
+    barWrapper.appendChild(circle);
+
+    // Append the bar container to the frequencyBars container
+    barContainer.appendChild(barWrapper);
+  });
+
+  // Hover action for the title image
+  const titleImage = document.getElementById('titleImage');
+  const titleAudio = new Audio('title-sound.wav'); // Sound to play when hovering over title
+  const originalImageSrc = 'sound-travels.png';   // Original image source
+  const hoverImageSrc = 'sound-travels-hover.png'; // Hover image source (different color font)
+
+  // Switch image and play sound on hover
+  titleImage.addEventListener('mouseenter', () => {
+    titleImage.src = hoverImageSrc; // Change to hover image
+    titleAudio.play();              // Play hover sound
+  });
+
+  // Reset image when mouse leaves
+  titleImage.addEventListener('mouseleave', () => {
+    titleImage.src = originalImageSrc; // Switch back to original image
+    titleAudio.pause();                // Stop the audio
+    titleAudio.currentTime = 0;        // Reset the audio to the beginning
+  });
+
+</script>
+
+</body>
+</html>
